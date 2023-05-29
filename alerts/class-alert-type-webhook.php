@@ -29,6 +29,13 @@ class Alert_Type_Webhook extends Alert_Type {
 	 */
 	public $slug = 'webhook';
 
+    /**
+     * Alert Method
+     * 
+     * @var array
+     */
+    public $method = array();
+
 	/**
 	 * Class Constructor
 	 *
@@ -49,6 +56,10 @@ class Alert_Type_Webhook extends Alert_Type {
 			10,
 			2
 		);
+        $this->method = array(
+            'get'    => esc_html__( 'GET', ' tn-stream-alert-webhook' ),
+            'post'   => esc_html__( 'POST', ' tn-stream-alert-webhook' )
+        );
 	}
 
 	/**
@@ -64,6 +75,7 @@ class Alert_Type_Webhook extends Alert_Type {
 			$alert->alert_meta,
 			array(
 				'webhook'           => '',
+                'method'            => 'post',
 				'trigger_action'    => '',
 				'trigger_connector' => '',
 				'trigger_context'   => '',
@@ -154,7 +166,9 @@ class Alert_Type_Webhook extends Alert_Type {
 			$data['title_link'] = admin_url( "admin.php?page=wp_stream&object_id=$object_id&context=$context" );
 		}
 	
-		
+    $data = apply_filters( 'wp_stream_alert_webhook_data', $data, $recordarr );
+    // If HTTP Method is POST send it as a JSON encoded body
+	if( $options['method'] == 'post' ) {	
 		wp_remote_post(
 			$options['webhook'],
 			array(
@@ -163,6 +177,13 @@ class Alert_Type_Webhook extends Alert_Type {
 			)
 		);
 	}
+    // If HTTP Method is GET send it as a GET request with URL encoded content
+    if( $options['method'] == 'get' ) {
+        $url = $options['webhook'].'?'.http_build_query( $data );
+        $url = apply_filters( 'wp_stream_alert_webhook_request_url', $url, $data );
+        wp_remote_get( $url );
+    }
+}
 
 	/**
 	 * Displays a settings form for the alert type
@@ -179,11 +200,12 @@ class Alert_Type_Webhook extends Alert_Type {
 			$alert_meta,
 			array(
 				'webhook'  => '',
+                'method'     => 'post',
 			)
 		);
 		$form    = new Form_Generator();
 		echo '<span class="wp_stream_alert_type_description">' . esc_html__( 'Send a JSON notification to endpoint.', ' tn-stream-alert-webhook' ) . '</span>';
-		echo '<label for="wp_stream_slack_webhook"><span class="title">' . esc_html__( 'Webhook URL', ' tn-stream-alert-webhook' ) . '</span>';
+		echo '<label for="wp_stream_webhook"><span class="title">' . esc_html__( 'URL', ' tn-stream-alert-webhook' ) . '</span>';
 		echo '<span class="input-text-wrap">';
 		echo $form->render_field(
 			'text',
@@ -196,6 +218,20 @@ class Alert_Type_Webhook extends Alert_Type {
 		echo '</span>';
 		echo '<span class="input-text-wrap">' . esc_html__( 'The webhook URL', ' tn-stream-alert-webhook' ) . '</span>';
 		echo '</label>';
+        echo '<label for="wp_stream_webhook_method"><span class="title">' . esc_html__( 'Method', ' tn-stream-alert-webhook' ) . '</span>';
+        echo '<span class="input-text-wrap">';
+        echo $form->render_field(
+            'select',
+            array(
+                'options' => $this->method,
+                'name'   => 'wp_stream_webhook_method',
+                'title'  => esc_attr( __( 'HTTP Method', ' tn-stream-alert-webhook' ) ),
+                'value'  => $options['method'], 
+            )
+        );
+        echo '</span>';
+        echo '<span class="input-text-wrap">' . esc_html__( 'The HTTP method', ' tn-stream-alert-webhook' ) . '</span>';
+        echo '</label>';
 	}
 
 	/**
@@ -210,6 +246,10 @@ class Alert_Type_Webhook extends Alert_Type {
 		$webhook = wp_stream_filter_input( 'INPUT_POST', 'wp_stream_webhook', 'FILTER_VALIDATE_URL' );
 		if ( ! empty( $webhook ) ) {
 			$alert->alert_meta['webhook'] = $webhook;
+		}
+        $method = wp_stream_filter_input( INPUT_POST, 'wp_stream_webhook_method' );
+        if ( ! empty( $method ) ) {
+			$alert->alert_meta['method'] = $method;
 		}
 	}
 
@@ -226,6 +266,10 @@ class Alert_Type_Webhook extends Alert_Type {
 			$webhook = wp_stream_filter_input( INPUT_POST, 'wp_stream_webhook' );
 			if ( ! empty( $webhook ) ) {
 				$alert_meta['webhook'] = $webhook;
+			}
+            $method = wp_stream_filter_input( INPUT_POST, 'wp_stream_webhook_method' );
+			if ( ! empty( $method ) ) {
+				$alert_meta['method'] = $method;
 			}
 		}
 
