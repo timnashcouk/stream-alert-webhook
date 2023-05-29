@@ -58,6 +58,7 @@ class Alert_Type_Webhook extends Alert_Type {
 		);
         $this->method = array(
             'get'    => esc_html__( 'GET', ' tn-stream-alert-webhook' ),
+            'simple' => esc_html__( 'GET (Simple)', ' tn-stream-alert-webhook' ), 
             'post'   => esc_html__( 'POST', ' tn-stream-alert-webhook' )
         );
 	}
@@ -180,6 +181,13 @@ class Alert_Type_Webhook extends Alert_Type {
     // If HTTP Method is GET send it as a GET request with URL encoded content
     if( $options['method'] == 'get' ) {
         $url = $options['webhook'].'?'.http_build_query( $data );
+        $url = apply_filters( 'wp_stream_alert_webhook_request_url', $url, $data );
+        wp_remote_get( $url );
+    }
+    // if HTTP Method is GET (Simple) send it as a get request url encoded content but only title
+    if( $options['method'] == 'simple' ) {
+        $msg = '['.$data['site_name'].'] '.$data['fallback'];
+        $url = $options['webhook'].urlencode( $msg );
         $url = apply_filters( 'wp_stream_alert_webhook_request_url', $url, $data );
         wp_remote_get( $url );
     }
