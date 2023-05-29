@@ -214,7 +214,7 @@ class Alert_Type_Webhook extends Alert_Type {
 	}
 
 	/**
-	 * Add alert meta if this is a Slack alert
+	 * Add alert meta if this is a Webhook alert
 	 *
 	 * @param array  $alert_meta The metadata to be inserted for this alert.
 	 * @param string $alert_type The type of alert being added or updated.
