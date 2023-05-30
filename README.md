@@ -14,7 +14,44 @@ Alternatively you can manually download from [Github]( https://github.com/timnas
 Once activated, navigate to `Stream -> Alerts -> Add New` a within the `alert me by` dropdown select "Webhook" 
 The webhook has a single configurable field "Webhook URL" this is the full URL of where you want to send the payload.
 
-Note the payload is a POST request and contains the contents in the body.
+You may select between HTTP Methods
+- **GET** sends the payload as a URLEncoded String appended to the Webhook
+- **GET(Simple)** sends the payload as a URLEncoded string, but only the sitename and details, not full payload
+- **POST** sends the payload as a JSON encoded content in the body
+
+## Examples
+
+### Telegram Bot
+Set the webhook to be:
+```
+https://api.telegram.org/bot{BOT_ID}}/sendMessage?chat_id={CHAT_ID}&text=
+```
+replacing the {BOT_ID} and {CHAT_ID} strings, for details see [Telegram Bot Tutorial](https://core.telegram.org/bots/tutorial) 
+
+The method should be `Get Simple`
+Saving will result in the message:
+
+```
+[site name] "Any User > Any Context > Any Action" alert updated
+```
+In the Telegram channel your bot is linked to.
+
+## Actions and Filters
+The plugin has a couple of filters that can help to change the message being sent.
+
+**wp_stream_alert_webhook_data** - Allows you to modify the data being sent, you can remove and add fields, or re-order/rename fields as it might suit. 
+
+**wp_stream_alert_webhook_request_url** - allows you to edit the URL (GET & GET (Simple)) string after it has been built, this might be useful when you need to add additional parameters to the URL where the position in the URL is important.
+
+## Changelog
+
+** V1.1 - May 30th, 2023**
+- Added the option to send GET requests, not just POST requests
+- Added filters to manipulate the data being sent by the alert
+- Added a GET Simple option for sending very simple messages
+
+** V1.0 - May 29th, 2023**
+- Initial Release onto Github
 
 ## Credits
 The plugin is maintained by [Tim Nash](https://timnash.co.uk), however let's face it its about 5 lines of original code while the majority has come from copying Streams built in alert types.  You can view [all thier contributors](https://github.com/xwp/stream/graphs/contributors) and cheer them on.

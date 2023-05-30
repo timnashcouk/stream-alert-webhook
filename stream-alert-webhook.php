@@ -1,8 +1,9 @@
 <?php
 /**
  * Plugin Name: Stream Alert Webhook
+ * Plugin URI: https://github.com/timnashcouk/stream-alert-webhook
  * Description: Extends XWP Stream to add a webhook as a alert type
- * Version: 1.0
+ * Version: 1.1
  * Author: Tim Nash
  * Author URI: https://timnash.co.uk
  * Text Domain: tn-stream-alert-webhook
